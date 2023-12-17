@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans 'Обратная связь' %}{% endblock %}
+
+{% block style %}
+  <link rel="stylesheet" href="{% static 'css/feedback.css' %}">
+{% endblock %}
+
+{% block content %}
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+<div class="my-form">
+  <form method="post" enctype="multipart/form-data">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">{% trans 'Отправить' %}</button>
+  </form>
+    </div>
+{% endblock %}
+
+{% block script %}
+ <script>
+  function updateFileName() {
+    var input = document.getElementById('file-input');
+    var fileNameDisplay = document.getElementById('file-name');
+
+    if (input.files.length > 0) {
+      fileNameDisplay.textContent = input.files[0].name;
+    } else {
+      fileNameDisplay.textContent = 'Выберите файл';
+    }
+  }
+</script>
+{% endblock %}

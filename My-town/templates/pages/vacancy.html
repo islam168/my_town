@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans 'Вакансии' %}{% endblock %}
+
+{% block style %}
+  <link rel="stylesheet" href="{% static 'css/passport.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="passport">
+        <span class="">{{ vacancy.text|safe }}</span>
+        <iframe class="vac-iframe" src="{{ vacancy.file }}" width="" height="auto" frameborder="0"></iframe>
+    </div>
+{% endblock %}
