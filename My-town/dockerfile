@@ -26,6 +26,17 @@ RUN apt-get update && apt-get install dos2unix -y
 RUN dos2unix /usr/src/My-town/entrypoint.prod.sh \
     && chmod +x /usr/src/My-town/entrypoint.prod.sh
 
+
+# create the appropriate directories
+ENV HOME=/home/My-town
+ENV APP_HOME=/home/My-town/web
+RUN mkdir -p $HOME  # Создание родительской директории, если её нет
+RUN mkdir $APP_HOME
+RUN mkdir $APP_HOME/static
+RUN mkdir $APP_HOME/media
+WORKDIR $APP_HOME
+
+
 # copy project
 COPY . .
 
