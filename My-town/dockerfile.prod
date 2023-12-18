@@ -1,0 +1,70 @@
+###########
+# BUILDER #
+###########
+
+# pull official base image
+FROM python:3.9.6-bullseye as builder
+
+# set work directory
+WORKDIR /usr/src/My-town
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# install psycopg2 dependencies
+RUN apt-get update \
+    && apt-get install -y postgresql-server-dev-all gcc python3-dev
+
+# lint
+RUN pip install --upgrade pip
+RUN pip install flake8==3.9.2
+COPY . .
+RUN flake8 --ignore=E501,F401 .
+
+# install dependencies
+COPY ./requirements.txt .
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/My-town/wheels -r requirements.txt
+
+
+#########
+# FINAL #
+#########
+
+# pull official base image
+FROM python:3.9.6-alpine
+
+# create directory for the app user
+RUN mkdir -p /home/My-town
+
+# create the app user
+RUN addgroup -S My-town && adduser -S My-town -G My-town
+
+# create the appropriate directories
+ENV HOME=/home/My-town
+ENV APP_HOME=/home/My-town/web
+RUN mkdir $APP_HOME
+WORKDIR $APP_HOME
+
+# install dependencies
+RUN apk update && apk add libpq
+COPY --from=builder /usr/src/My-town/wheels /wheels
+COPY --from=builder /usr/src/My-town/requirements.txt .
+RUN pip install --no-cache /wheels/*
+
+# copy entrypoint.prod.sh
+COPY ./entrypoint.prod.sh .
+RUN sed -i 's/\r$//g'  $APP_HOME/entrypoint.prod.sh
+RUN chmod +x  $APP_HOME/entrypoint.prod.sh
+
+# copy project
+COPY . $APP_HOME
+
+# chown all the files to the app user
+RUN chown -R My-town:My-town $APP_HOME
+
+# change to the app user
+USER My-town
+
+# run entrypoint.prod.sh
+ENTRYPOINT ["/home/My-town/web/entrypoint.prod.sh"]
