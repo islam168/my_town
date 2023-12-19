@@ -10,7 +10,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 DEBUG = int(os.environ.get("DEBUG", default=0))
 
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:1337']
+CSRF_TRUSTED_ORIGINS = ['http://islamooy.beget.tech']
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
